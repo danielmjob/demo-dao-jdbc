@@ -50,5 +50,16 @@ public class App {
         sellerDao.insert(newSeller);
         System.out.println("Inserted! New id = " + newSeller.getId());
 
+        System.out.println("\n==========================================");
+        System.out.println(" TEST 5: seller UPDATE ");
+        System.out.println("==========================================");
+
+        seller = sellerDao.findById(1); // seleciona o vendedor que será alterado (vendedor de Id 1)
+        seller.setName("Martha Wayne");
+        seller.setEmail("marthaw@gmail.com");
+        sellerDao.update(seller);
+        System.out.println("Update completed");
+
+
     }
 }
