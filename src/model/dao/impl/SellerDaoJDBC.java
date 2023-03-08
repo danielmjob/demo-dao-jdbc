@@ -104,10 +104,52 @@ public class SellerDaoJDBC implements SellerDao{
 
    @Override
     public List<Seller> findAll() {
-       return null;
+      PreparedStatement st = null;
+      ResultSet rs = null;
+
+      try{
+
+         st = conn.prepareStatement(
+           "SELECT seller.*,department.Name as DepName "
+         + "FROM seller INNER JOIN department "
+         + "ON seller.DepartmentId = department.Id "
+         + "ORDER BY Name ");
+
+         rs = st.executeQuery();
+
+         List<Seller> list = new ArrayList<>();
+         Map<Integer, Department> map = new HashMap<>(); // criado um map vazio
+
+         while(rs.next()){
+
+            Department dep = map.get(rs.getInt("DepartmentId"));
+
+            // so instancia um departamento se ele ainda não existir
+            if (dep == null){
+               dep = instantiateDepartment(rs);
+               map.put(rs.getInt("DepartmentId"), dep); // joga o departmento no map
+            }
+
+            // feito dessa forma para que seja criado um departamento com varios vendedores e não um departamento por vendedor, gerando repetições de departamento
+
+            Seller obj = instantiateSeller(rs, dep);
+            list.add(obj);
+
+         }
+         return list;
+
+
+      }catch(SQLException e){
+         throw new DbException(e.getMessage());
+
+      }finally{
+         DB.closeStatement(st);
+         DB.closeResultSet(rs);
+
+      }
     }
 
-    // ficou parecido com o findById com algumas particularidades
+    // ficou parecido com o findById e findAll com algumas particularidades
    @Override
    public List<Seller> findByDepartment(Department department) {
       PreparedStatement st = null;
